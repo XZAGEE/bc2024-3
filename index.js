@@ -10,24 +10,30 @@ program.parse(process.argv);
 
 const options = program.opts();
 
-
 if (!options.input) {
-  throw new Error("Please, specify input file");
-} else if (!fs.existsSync(options.input)){
-    throw new Error("Cannot find input file");
-} else {
-    fs.readFileSync(options.input, { encoding: "utf8" });
+    throw new Error("Please, specify input file");
+  } else if (!fs.existsSync(options.input)){
+      throw new Error("Cannot find input file");
+  }
+
+const dataJSON = JSON.parse(fs.readFileSync(options.input, {encoding:"utf8"}));
+const dataFiltered = dataJSON
+.filter(elem => elem.parent === "BS3_BanksLiab")
+.map(elem => `${elem.txten}:${elem.value}`)
+.join("\n")
+
+if (dataFiltered.length === 0) {
+console.error("No element found");
 }
 
 if (!options.output && !options.display) {
   process.exit(0);
 } else {
   if (options.output) {
-    data = options.output;
-    fs.writeFileSync(options.output, data);
+    fs.writeFileSync(options.output, dataFiltered);
     console.log(`The result is written to: ${options.output}`);
 } if (options.display) {
-    console.log(data);
+    console.log(dataFiltered);
   }
 }
  
